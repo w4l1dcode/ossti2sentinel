@@ -28,9 +28,6 @@ microsoft:
     endpoint: ""
     rule_id: ""
     stream_name: ""
-
-virustotal:
-  api_key: "<optional-api-key>"
 ```
 
 Most settings can also be provided as environment variables, including `MS_APP_ID`, `MS_SECRET_KEY`, `MS_TENANT_ID`, `MS_SUB_ID`, `MS_DCR_ENDPOINT`, `MS_DCR_RULE`, and `MS_DCR_STREAM`.
