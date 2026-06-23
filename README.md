@@ -1,6 +1,6 @@
 # ossti2sentinel
 
-`ossti2sentinel` ingests open-source threat intelligence feeds and ships normalized IOC records to Microsoft Sentinel through an Azure Monitor Data Collection Rule.
+`ossti2sentinel` ingests open source threat intelligence feeds and ships normalized IOC records to Microsoft Sentinel.
 
 ## Feeds
 
