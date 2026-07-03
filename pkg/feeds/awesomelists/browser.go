@@ -1,9 +1,8 @@
-package extensions
+package awesomelists
 
 import (
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"github.com/w4l1dcode/ossti2sentinel/pkg/feeds"
 	"io"
@@ -106,33 +105,25 @@ func parseBrowser(r io.Reader) ([]BrowserEntry, error) {
 	return entries, nil
 }
 
-func buildBrowserLogs(extensions []BrowserEntry, fetchedAt time.Time) []map[string]string {
-	logs := make([]map[string]string, 0, len(extensions))
-
-	for _, extension := range extensions {
-		logRecord := feeds.NewLogRecord(fetchedAt, "malicious_extension")
-		logRecord["source"] = "awesome_lists_browser_malicious_extensions"
-		logRecord["ioc_type"] = "browser_extension_id"
-		logRecord["ioc"] = extension.ExtensionID
-
-		additionalFields := map[string]string{
-			"application":                   "browser",
-			"browser_extension":             extension.Name,
-			"browser_extension_id":          extension.ExtensionID,
-			"browser_extension_id_wildcard": extension.IDWildcard,
-			"metadata_category":             extension.Category,
-			"metadata_type":                 extension.Type,
-			"metadata_link":                 extension.MetadataLink,
-			"metadata_comment":              extension.Comment,
-			"crx_file_sha256":               extension.CRXSHA256,
-			"feed_url":                      browserCSVURL,
+func buildBrowserLogs(entries []BrowserEntry, fetchedAt time.Time) []map[string]string {
+	return feeds.BuildLogRecords(entries, fetchedAt, func(extension BrowserEntry) feeds.LogRecordFields {
+		return feeds.LogRecordFields{
+			ThreatCategory: "malicious_extension",
+			Source:         "awesome_lists_browser_malicious_extensions",
+			IOCType:        "browser_extension_id",
+			IOC:            extension.ExtensionID,
+			AdditionalFields: map[string]string{
+				"application":                   "browser",
+				"browser_extension":             extension.Name,
+				"browser_extension_id":          extension.ExtensionID,
+				"browser_extension_id_wildcard": extension.IDWildcard,
+				"metadata_category":             extension.Category,
+				"metadata_type":                 extension.Type,
+				"metadata_link":                 extension.MetadataLink,
+				"metadata_comment":              extension.Comment,
+				"crx_file_sha256":               extension.CRXSHA256,
+				"feed_url":                      browserCSVURL,
+			},
 		}
-		if b, err := json.Marshal(additionalFields); err == nil {
-			logRecord["AdditionalFields"] = string(b)
-		}
-
-		logs = append(logs, logRecord)
-	}
-
-	return logs
+	})
 }

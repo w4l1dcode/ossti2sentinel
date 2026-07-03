@@ -3,7 +3,6 @@ package abusech
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/w4l1dcode/ossti2sentinel/pkg/feeds"
 	"io"
@@ -81,28 +80,20 @@ func FetchURLHausOnline(ctx context.Context, client *http.Client) ([]URLHausEntr
 }
 
 func buildURLHausLogs(urls []URLHausEntry, fetchedAt time.Time) []map[string]string {
-	logs := make([]map[string]string, 0, len(urls))
-
-	for _, url := range urls {
-		logRecord := feeds.NewLogRecord(fetchedAt, "malware")
-		logRecord["source"] = "abusech_urlhaus_online"
-		logRecord["ioc_type"] = "url"
-		logRecord["ioc"] = url.RawURL
-
-		additionalFields := map[string]string{
-			"hash_type":  "",
-			"url_scheme": url.Scheme,
-			"url_host":   url.Host,
-			"url_domain": url.Domain,
-			"url_path":   url.Path,
-			"url_port":   url.Port,
+	return feeds.BuildLogRecords(urls, fetchedAt, func(url URLHausEntry) feeds.LogRecordFields {
+		return feeds.LogRecordFields{
+			ThreatCategory: "malware",
+			Source:         "abusech_urlhaus_online",
+			IOCType:        "url",
+			IOC:            url.RawURL,
+			AdditionalFields: map[string]string{
+				"hash_type":  "",
+				"url_scheme": url.Scheme,
+				"url_host":   url.Host,
+				"url_domain": url.Domain,
+				"url_path":   url.Path,
+				"url_port":   url.Port,
+			},
 		}
-		if b, err := json.Marshal(additionalFields); err == nil {
-			logRecord["AdditionalFields"] = string(b)
-		}
-
-		logs = append(logs, logRecord)
-	}
-
-	return logs
+	})
 }

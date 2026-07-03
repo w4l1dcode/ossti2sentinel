@@ -1,9 +1,8 @@
-package extensions
+package awesomelists
 
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/w4l1dcode/ossti2sentinel/pkg/feeds"
 	"io"
@@ -62,26 +61,18 @@ func parseVSCode(r io.Reader) ([]VSCodeEntry, error) {
 	return entries, nil
 }
 
-func buildVSCodeLogs(extensions []VSCodeEntry, fetchedAt time.Time) []map[string]string {
-	logs := make([]map[string]string, 0, len(extensions))
-
-	for _, extension := range extensions {
-		logRecord := feeds.NewLogRecord(fetchedAt, "malicious_extension")
-		logRecord["source"] = "awesome_lists_vscode_malicious_extension_ids"
-		logRecord["ioc_type"] = "vscode_extension_id"
-		logRecord["ioc"] = extension.ExtensionID
-
-		additionalFields := map[string]string{
-			"application":  "visual_studio_code",
-			"extension_id": extension.ExtensionID,
-			"feed_url":     vscodeExtensionIDsURL,
+func buildVSCodeLogs(entries []VSCodeEntry, fetchedAt time.Time) []map[string]string {
+	return feeds.BuildLogRecords(entries, fetchedAt, func(extension VSCodeEntry) feeds.LogRecordFields {
+		return feeds.LogRecordFields{
+			ThreatCategory: "malicious_extension",
+			Source:         "awesome_lists_vscode_malicious_extension_ids",
+			IOCType:        "vscode_extension_id",
+			IOC:            extension.ExtensionID,
+			AdditionalFields: map[string]string{
+				"application":  "visual_studio_code",
+				"extension_id": extension.ExtensionID,
+				"feed_url":     vscodeExtensionIDsURL,
+			},
 		}
-		if b, err := json.Marshal(additionalFields); err == nil {
-			logRecord["AdditionalFields"] = string(b)
-		}
-
-		logs = append(logs, logRecord)
-	}
-
-	return logs
+	})
 }
