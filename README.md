@@ -6,8 +6,12 @@
 
 - MalwareBazaar recent SHA256 hashes
 - URLHaus online URLs
+- Aikido npm malware package feed
 - Known malicious Visual Studio Code extension IDs
 - Known malicious browser extension IDs
+
+All feeds are normalized into Sentinel log records with common fields such as `TimeGenerated`, `source`,
+`threat_category`, `ioc_type`, `ioc`, and JSON-encoded `AdditionalFields`.
 
 ## Configuration
 
@@ -55,3 +59,4 @@ go build -o ossti2sentinel ./cmd/...
 - https://github.com/mthcht/awesome-lists/tree/main/Lists
 - https://bazaar.abuse.ch/browse/
 - https://urlhaus.abuse.ch
+- https://malware-list.aikido.dev/malware_predictions.json
